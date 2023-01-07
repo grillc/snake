@@ -14,18 +14,20 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.util.HashMap;
 
 public class Board extends JPanel implements ActionListener {
 
-    private final int B_WIDTH = 300;
-    private final int B_HEIGHT = 300;
+    private final int B_WIDTH = 900;
+    private final int B_HEIGHT = 600;
     private final int DOT_SIZE = 10;
-    private final int ALL_DOTS = 900;
+    private final int ALL_DOTS = 5400;
     private final int RAND_POS = 29;
-    private final int DELAY = 140;
+    private final int DELAY = 200;
 
-    private final int x[] = new int[ALL_DOTS];
-    private final int y[] = new int[ALL_DOTS];
+    //TODO dieses Datenstruktur ist fürchterlich
+    private final int[] x = new int[ALL_DOTS];
+    private final int[] y = new int[ALL_DOTS];
 
     private int dots = 3;
     private int apple_x;
@@ -42,6 +44,14 @@ public class Board extends JPanel implements ActionListener {
     private Image apple;
     private Image head;
 
+    private HashMap<String, Integer> stats;
+
+    Font small = new Font("Helvetica", Font.BOLD, 14);
+    // FontMetrics metr = getFontMetrics(small);
+
+
+
+
     public Board() {
 
         initBoard();
@@ -54,6 +64,9 @@ public class Board extends JPanel implements ActionListener {
         setFocusable(true);
 
         setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+        stats = new HashMap<>();
+        stats.put("key_presses",0);
+        stats.put("movements", 0);
         loadImages();
         initGame();
     }
@@ -87,6 +100,8 @@ public class Board extends JPanel implements ActionListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        g.setColor(Color.black);
+        g.setFont(small);
         doDrawing(g);
     }
 
@@ -104,6 +119,11 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
 
+            String msg = "Score: " + dots + ", Movements: " + stats.get("movements") + ", Key_presses: " + stats.get("key_presses");
+            g.drawString(msg, 15, 15);
+
+
+
             Toolkit.getDefaultToolkit().sync();
 
         } else {
@@ -114,13 +134,16 @@ public class Board extends JPanel implements ActionListener {
 
     private void gameOver(Graphics g) {
 
-        String msg = "Game Over";
+        String msg = "Punkte: " + dots + ", Movements: " + stats.get("movements") + ", Key_presses: " + stats.get("key_presses");
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = getFontMetrics(small);
 
-        g.setColor(Color.white);
+
+        g.setColor(Color.black);
         g.setFont(small);
         g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
+
+
     }
 
     private void checkApple() {
@@ -133,6 +156,8 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void move() {
+
+        stats.put("movements",stats.get("movements")+1);
 
         for (int z = dots; z > 0; z--) {
             x[z] = x[(z - 1)];
@@ -213,6 +238,7 @@ public class Board extends JPanel implements ActionListener {
         @Override
         public void keyPressed(KeyEvent e) {
 
+            stats.put("key_presses",stats.get("key_presses")+1);
             int key = e.getKeyCode();
 
             if ((key == KeyEvent.VK_LEFT) && (!rightDirection)) {
